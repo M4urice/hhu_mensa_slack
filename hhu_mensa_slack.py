@@ -120,7 +120,7 @@ def post_canteen_menu_to_slack(menu):
 def scrape_and_format_canteen_menu(page_soup):
     """Scrape page content, process it and format it for Slack"""
     todays_menu = page_soup.find(
-        "div", {"data-day": "{}".format(TODAY_DAYNAME)})
+        "div", {"data-day": "{}".format(datetime.datetime.now().strftime("%A"))})
     todays_date = todays_menu.attrs.get('data-date')
     today_all_menus = todays_menu.find_all("div", {"class": "counter"})
     menus = []
@@ -135,10 +135,8 @@ def scrape_and_format_canteen_menu(page_soup):
 
 @sched.scheduled_job('cron', day_of_week='mon-fri', hour=int(NOTIFY_SCHEDULE[0]), minute=int(NOTIFY_SCHEDULE[1]))
 def main():
-    TODAY = datetime.date.today()
-    TODAY_DAYNAME = datetime.datetime.now().strftime("%A")
     # if weekend or holiday today: exit program
-    if (TODAY_DAYNAME not in WEEKDAYS) or (TODAY in GERMAN_HOLIDAY_CALENDAR.holidays()):
+    if (datetime.datetime.now().strftime("%A") not in WEEKDAYS) or (datetime.date.today() in GERMAN_HOLIDAY_CALENDAR.holidays()):
         print("Mensa not open today, so there is no data to get...")
         sys.exit(0)
     page = requests.get(CANTEEN_URL)
