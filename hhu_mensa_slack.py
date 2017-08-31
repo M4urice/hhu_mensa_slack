@@ -27,8 +27,6 @@ except locale.Error as err:
 # canteen (mensa) is open from monday to friday only and additionally
 # closed on german holidays
 GERMAN_HOLIDAY_CALENDAR = get_german_holiday_calendar('NW')()
-TODAY = datetime.date.today()
-TODAY_DAYNAME = datetime.datetime.now().strftime("%A")
 WEEKDAYS = tuple(calendar.day_name)[:6]
 
 NOTIFY_SCHEDULE = os.environ.get(
@@ -137,6 +135,8 @@ def scrape_and_format_canteen_menu(page_soup):
 
 @sched.scheduled_job('cron', day_of_week='mon-fri', hour=int(NOTIFY_SCHEDULE[0]), minute=int(NOTIFY_SCHEDULE[1]))
 def main():
+    TODAY = datetime.date.today()
+    TODAY_DAYNAME = datetime.datetime.now().strftime("%A")
     # if weekend or holiday today: exit program
     if (TODAY_DAYNAME not in WEEKDAYS) or (TODAY in GERMAN_HOLIDAY_CALENDAR.holidays()):
         print("Mensa not open today, so there is no data to get...")
